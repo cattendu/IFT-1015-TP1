@@ -245,6 +245,14 @@
         return exportScreen();
     };
 
+    var testSetMines = function(){
+        assert(setMines(3, 2, 5, 16,0)=='true,true,false,true,true,true'); // test position cols vs rows
+        assert(setMines(2, 2, 3, 16, 0)=='true,true,false,true');
+        assert(setMines(2, 2, 3, 0,0)=='false,true,true,true');
+        assert(setMines(2, 3, 5, 16,0)=='true,true,true,false,true,true'); // test position cols vs rows
+        assert(setMines(2, 2, 2, 0, 0)== 'false,true,true,false' || 'false,false,true,true' || 'false,true,false,true');
+    };
+
     testMinesweeper();
 
     //French functions equivalents
