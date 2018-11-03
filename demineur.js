@@ -45,12 +45,12 @@
 
         if(gameState == -1){
             pause(0.01);
-            alert("LOST!");
+            alert("GAME OVER!");
         }
         else{
             displayMines(minesArr);
             pause(0.01);
-            alert("WON!");
+            alert("YOU WIN!");
         }
         
     };
