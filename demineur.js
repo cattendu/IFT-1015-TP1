@@ -61,14 +61,31 @@
             for(var j = 0; j < array2D[0].length; j++)
                 fn(i,j);
     };
-
+    
+    var iterateAround = function(x, y, array2D, fn){
+        var tile = getTile(x,y);
+        
+        //make sure indexes are inside array's bounds
+        var minCol = Math.max(0, tile.col-1);    
+        var minRow = Math.max(0, tile.row-1);    
+        var maxCol = Math.min(tile.col+1, array2D.length-1);   
+        var maxRow = Math.min(tile.row+1, array2D[0].length-1);
+        
+        for(var i = minCol; i <= maxCol; i++ ){
+            for(var j = minRow; j <= maxRow; j++){
+                if(i != tile.col || j != tile.row)
+                    fn(i,j);
+            }
+        }
+    };
+    
     var displayMines = function(minesArr){
         iterateOver(minesArr, function(i,j){
             if(minesArr[i][j])
                 displayImage(i*imgWidth, j*imgHeight, colormap, mineImg);
         });
     };
-
+    
     //-------------------------------------------------------------------------------
     var getTile = function(x, y){
         return {
@@ -118,22 +135,10 @@
     };
 
     var getAdjacentMines = function(x, y, minesArr){
-        var tile = getTile(x, y);
-        var mines = 0; //number of adjacent mines
-
-        //make sure indexes are inside array's bounds
-        var minCol = Math.max(0, tile.col-1);    
-        var minRow = Math.max(0, tile.row-1);    
-        var maxCol = Math.min(tile.col+1, minesArr.length-1);   
-        var maxRow = Math.min(tile.row+1, minesArr[0].length-1);
-
-        //evaluate 8 tiles surrounding clicked tile
-        for(var i = minCol; i <= maxCol; i++){
-            for(var j = minRow; j <= maxRow; j++){
-                    if(!(i == tile.col && j== tile.row))          //do not evaluate clicked tile
-                        mines += minesArr[i][j];    //true = 1; false = 0
-            }
-        }
+        var mines = 0;
+        iterateAround(x,y,minesArr,function(i,j){
+            mines += minesArr[i][j];
+        });
         return mines;
     };
 
@@ -192,76 +197,75 @@
         }
     };
 
-    var revealSurroundingTiles = function(x, y, minesArr, revealedTilesArr){
-        var tile = getTile(x,y);
-
-        //make sure indexes are inside array's bounds
-        var minCol = Math.max(0, tile.col-1);    
-        var minRow = Math.max(0, tile.row-1);    
-        var maxCol = Math.min(tile.col+1, minesArr.length-1);   
-        var maxRow = Math.min(tile.row+1, minesArr[0].length-1);
-
+    var revealSurroundingTiles = function(x, y, minesArr, tilesArr){
         var revealedTiles = 0;
-        for(var i = minCol; i <= maxCol; i++ ){
-            for(var j = minRow; j <= maxRow; j++){
-                if(!(i == tile.col && j== tile.row) && !revealedTilesArr[i][j]){ //tile was not already revealed
-                    var tileToReveal = getTile(i*imgWidth, j*imgHeight);
+        iterateAround(x,y,minesArr,function(i,j){
+            if(!tilesArr[i][j]){
+                var tileToReveal = getTile(i*imgWidth, j*imgHeight);
                     var img = images[getAdjacentMines(tileToReveal.x, tileToReveal.y, minesArr)];
                     displayImage(tileToReveal.x,tileToReveal.y,colormap,img);
-                    revealedTilesArr[i][j] = true;
+                    tilesArr[i][j] = true;
                     revealedTiles++;
-                }
             }
-        }
+        });        
         return revealedTiles;
     };
 
-
     var testMinesweeper = function(){
-        //displayImage
-        var colormap = [{r:255, g:255, b:255}, {r:238, g:0, b:0}];
-        assert(testDisplayImage(0,0,colormap,[]) == 
-            "#000000#000000#000000\n#000000#000000#000000");
-        assert(testDisplayImage(0,0,colormap,[[]]) == 
-            "#000000#000000#000000\n#000000#000000#000000");
-        assert(testDisplayImage(1,1,colormap,[[0]]) == 
-            "#000000#000000#000000\n#000000#ffffff#000000");
-        assert(testDisplayImage(0,0,colormap,[[1,0],[0,1]]) == 
-            "#ee0000#ffffff#000000\n#ffffff#ee0000#000000");
-        assert(testDisplayImage(1,0,colormap,[[1,0],[0,1]]) == 
-            "#000000#ee0000#ffffff\n#000000#ffffff#ee0000");
-        assert(testDisplayImage(0,1,colormap,[[1,0,1]]) == 
-            "#000000#000000#000000\n#ee0000#ffffff#ee0000");
-        assert(testDisplayImage(0,0,colormap,[[1,0,0],[1,0,0]]) == 
-            "#ee0000#ffffff#ffffff\n#ee0000#ffffff#ffffff");
-        assert(testDisplayImage(2,0,colormap,[[1],[0]]) == 
-            "#000000#000000#ee0000\n#000000#000000#ffffff");
-        
-        //setMines
-        
+        testDisplayImage();
+        testSetMines();
     };
 
-    var testDisplayImage = function(x,y,colormap,image){
-        setScreenMode(3,2);
-        displayImage(x,y,colormap,image);
-        return exportScreen();
+    var testDisplayImage = function(){
+        var exportDisplayImage = function(x,y,colormap,image){
+            setScreenMode(3,2);
+            displayImage(x,y,colormap,image);
+            return exportScreen();
+        };
+
+        var colormap = [{r:255, g:255, b:255}, {r:238, g:0, b:0}];
+        assert(exportDisplayImage(0,0,colormap,[]) == 
+            "#000000#000000#000000\n#000000#000000#000000");
+        assert(exportDisplayImage(0,0,colormap,[[]]) == 
+            "#000000#000000#000000\n#000000#000000#000000");
+        assert(exportDisplayImage(1,1,colormap,[[0]]) == 
+            "#000000#000000#000000\n#000000#ffffff#000000");
+        assert(exportDisplayImage(0,0,colormap,[[1,0],[0,1]]) == 
+            "#ee0000#ffffff#000000\n#ffffff#ee0000#000000");
+        assert(exportDisplayImage(1,0,colormap,[[1,0],[0,1]]) == 
+            "#000000#ee0000#ffffff\n#000000#ffffff#ee0000");
+        assert(exportDisplayImage(0,1,colormap,[[1,0,1]]) == 
+            "#000000#000000#000000\n#ee0000#ffffff#ee0000");
+        assert(exportDisplayImage(0,0,colormap,[[1,0,0],[1,0,0]]) == 
+            "#ee0000#ffffff#ffffff\n#ee0000#ffffff#ffffff");
+        assert(exportDisplayImage(2,0,colormap,[[1],[0]]) == 
+            "#000000#000000#ee0000\n#000000#000000#ffffff");
     };
 
     var testSetMines = function(){
-        assert(setMines(3, 2, 5, 16,0)=='true,true,false,true,true,true'); // test position cols vs rows
-        assert(setMines(2, 2, 3, 16, 0)=='true,true,false,true');
-        assert(setMines(2, 2, 3, 0,0)=='false,true,true,true');
-        assert(setMines(2, 3, 5, 16,0)=='true,true,true,false,true,true'); // test position cols vs rows
-        assert(setMines(2, 2, 2, 0, 0)== 'false,true,true,false' || 'false,false,true,true' || 'false,true,false,true');
+        assert(setMines(2, 2, 3, 0, 0) ==
+        'false,true,true,true');
+        assert(setMines(2, 2, 3, 0, 16) ==
+        'true,false,true,true');
+        
+        assert(setMines(3, 2, 5, 16, 0) ==
+            'true,true,false,true,true,true');
+        assert(setMines(2, 3, 5, 16, 0) ==
+            'true,true,true,false,true,true');
+            
+        var mines = setMines(2, 2, 2, 0, 0);
+        assert(mines == 'false,true,true,false' || 
+               mines == 'false,false,true,true' || 
+               mines == 'false,true,false,true');
     };
 
-    testMinesweeper();
-
+    
     //French functions equivalents
     var afficherImage = displayImage;
     var attendreClic = waitForClick;
     var placerMines = setMines;
     var demineur = minesweeper;
     var testDemineur = testMinesweeper;
-
+    
+    testMinesweeper();
     minesweeper(4, 4, 1);
