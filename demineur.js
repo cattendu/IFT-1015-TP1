@@ -236,7 +236,9 @@
             "#ee0000#ffffff#ffffff\n#ee0000#ffffff#ffffff");
         assert(testDisplayImage(2,0,colormap,[[1],[0]]) == 
             "#000000#000000#ee0000\n#000000#000000#ffffff");
+        
         //setMines
+        
     };
 
     var testDisplayImage = function(x,y,colormap,image){
