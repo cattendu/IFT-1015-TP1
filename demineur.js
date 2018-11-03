@@ -219,9 +219,33 @@
 
     var testMinesweeper = function(){
         //displayImage
-
+        var colormap = [{r:255, g:255, b:255}, {r:238, g:0, b:0}];
+        assert(testDisplayImage(0,0,colormap,[]) == 
+            "#000000#000000#000000\n#000000#000000#000000");
+        assert(testDisplayImage(0,0,colormap,[[]]) == 
+            "#000000#000000#000000\n#000000#000000#000000");
+        assert(testDisplayImage(1,1,colormap,[[0]]) == 
+            "#000000#000000#000000\n#000000#ffffff#000000");
+        assert(testDisplayImage(0,0,colormap,[[1,0],[0,1]]) == 
+            "#ee0000#ffffff#000000\n#ffffff#ee0000#000000");
+        assert(testDisplayImage(1,0,colormap,[[1,0],[0,1]]) == 
+            "#000000#ee0000#ffffff\n#000000#ffffff#ee0000");
+        assert(testDisplayImage(0,1,colormap,[[1,0,1]]) == 
+            "#000000#000000#000000\n#ee0000#ffffff#ee0000");
+        assert(testDisplayImage(0,0,colormap,[[1,0,0],[1,0,0]]) == 
+            "#ee0000#ffffff#ffffff\n#ee0000#ffffff#ffffff");
+        assert(testDisplayImage(2,0,colormap,[[1],[0]]) == 
+            "#000000#000000#ee0000\n#000000#000000#ffffff");
         //setMines
     };
+
+    var testDisplayImage = function(x,y,colormap,image){
+        setScreenMode(3,2);
+        displayImage(x,y,colormap,image);
+        return exportScreen();
+    };
+
+    testMinesweeper();
 
     //French functions equivalents
     var afficherImage = displayImage;
