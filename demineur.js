@@ -19,7 +19,7 @@
                 //2D array containing displayed Tiles
                 var tilesArr = generate2DArray(cols, rows);
                 //2D array containing mines positions
-                var minesArr = generateMines(cols, rows, nbMines, click.x, click.y);
+                var minesArr = setMines(cols, rows, nbMines, click.x, click.y);
                 firstClick = false;
             }
             var tile = getTile(click.x, click.y);
@@ -152,9 +152,9 @@
         }
     };
 
-    var generateMines = function(cols, rows, nbMines, x, y){
+    var setMines = function(cols, rows, nbMines, x, y){
         var minesArr = generate2DArray(cols, rows);
-        setMines(minesArr, nbMines, x, y);
+        populateMines(minesArr, nbMines, x, y);
         return minesArr;
     };
 
@@ -172,7 +172,7 @@
     };
 
     //Places a number of mines in the mine array by switching the value to true
-    var setMines = function(minesArr, nbMines, x, y){
+    var populateMines = function(minesArr, nbMines, x, y){
         var tile = getTile(x,y);
         var validMinePositionsArr = [];
 
@@ -219,13 +219,14 @@
 
     var testMinesweeper = function(){
         //displayImage
+
         //setMines
     };
 
     //French functions equivalents
     var afficherImage = displayImage;
     var attendreClic = waitForClick;
-    var placerMines = generateMines;
+    var placerMines = setMines;
     var demineur = minesweeper;
     var testDemineur = testMinesweeper;
 
