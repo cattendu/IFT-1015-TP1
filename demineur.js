@@ -54,45 +54,36 @@
         }
         
     };
-
-    //iterate over a 2D array and call a function on each element
+    //-------------------------------------------------------------------------------
+    //iterate over all elems of a 2D array and call a function on each element
     var iterateOver = function(array2D, fn){
         for(var i = 0; i < array2D.length; i++)
             for(var j = 0; j < array2D[0].length; j++)
                 fn(i,j);
     };
     
+    //iterate on the 8 tiles around a specific tile and call a function on each element
     var iterateAround = function(x, y, array2D, fn){
-        var tile = getTile(x,y);
+        var tile = getTile(x,y); //tile to iterate around
         
         //make sure indexes are inside array's bounds
-        var minCol = Math.max(0, tile.col-1);    
-        var minRow = Math.max(0, tile.row-1);    
+        var minCol = Math.max(tile.col-1, 0);
+        var minRow = Math.max(tile.row-1, 0);
         var maxCol = Math.min(tile.col+1, array2D.length-1);   
         var maxRow = Math.min(tile.row+1, array2D[0].length-1);
         
-        for(var i = minCol; i <= maxCol; i++ ){
-            for(var j = minRow; j <= maxRow; j++){
+        for(var i = minCol; i <= maxCol; i++ )
+            for(var j = minRow; j <= maxRow; j++)
                 if(i != tile.col || j != tile.row)
                     fn(i,j);
-            }
-        }
-    };
-    
-    var displayMines = function(minesArr){
-        iterateOver(minesArr, function(i,j){
-            if(minesArr[i][j])
-                displayImage(i*imgWidth, j*imgHeight, colormap, mineImg);
-        });
-    };
-    
+    }; 
     //-------------------------------------------------------------------------------
     var getTile = function(x, y){
         return {
             col: getTileCol(x), //column's index
             row: getTileRow(y), //row's index
-            x: getTileX(x), //tile's leftmost pixel
-            y: getTileY(y)  //tile's topmost pixel
+            x: getTileX(x),     //tile's leftmost pixel
+            y: getTileY(y)      //tile's topmost pixel
         };
     };
     //Leftmost pixel of tile corresponding to a pixel coordinate
@@ -111,7 +102,12 @@
         return Math.floor(y/imgHeight);
     };
     //-------------------------------------------------------------------------------
-
+    var displayMines = function(minesArr){
+        iterateOver(minesArr, function(i,j){
+            if(minesArr[i][j])
+                displayImage(i*imgWidth, j*imgHeight, colormap, mineImg);
+        });
+    };  
     //Displays all tiles on the game board as the selected default tile
     var displayBoard = function (cols, rows) {
         setScreenMode(imgWidth * cols, imgHeight * rows);
@@ -144,29 +140,22 @@
 
     //Detects player's mouse click
     var waitForClick = function(){        
-        var mouse = getMouse();               //cursor's position and button state (up/down)
-        var previousMouse = mouse;            //record of the mouse from the previous iteration
+        var mouse = getMouse();      //cursor's position and button state (up/down)
+        var previousMouse = mouse;   //record of the mouse from the previous iteration
         
         while (true){ //run while player hasn't clicked
-            mouse = getMouse();       
+            mouse = getMouse();
             if (!previousMouse.down && mouse.down){ //mouse state changed from up to down
                 return { x: mouse.x, y: mouse.y };
             }      
             previousMouse = mouse;
-            pause(0.01);
+            pause(0.01); //pause to lighten CPU load
         }
     };
-
-    var setMines = function(cols, rows, nbMines, x, y){
-        var minesArr = generate2DArray(cols, rows);
-        populateMines(minesArr, nbMines, x, y);
-        return minesArr;
-    };
-
-    //creates a 2D array with same dimension as the game board containing only false values
+    
+    //creates a 2D array of size cols/rows containing only false values
     var generate2DArray = function(cols, rows){
         var arr = Array(cols);
-
         for (var i = 0; i < cols; i++) {
             arr[i] = Array(rows);
             for (var j = 0; j < rows; j++) {
@@ -176,24 +165,37 @@
         return arr;
     };
 
-    //Places a number of mines in the mine array by switching the value to true
-    var populateMines = function(minesArr, nbMines, x, y){
-        var tile = getTile(x,y);
-        var validMinePositionsArr = [];
+    //2D array with boolean values; true: mine at coordinate; false: no mine at coordinate
+    var setMines = function(cols, rows, nbMines, x, y){
+        var minesArr = generate2DArray(cols, rows); //2D array; all elems == false
+        var candidatesArr = getMineCandidates(minesArr, x, y);
+        selectMineCandidates(minesArr, candidatesArr, nbMines);
+        return minesArr;
+    };
 
+    var getMineCandidates = function(minesArr, x, y){
+        var tile = getTile(x,y); //Tile user clicked on
+        
+        //create 1D array containing all candidate 2D coordinates where mines can be placed
+        var candidatesArr = [];
         iterateOver(minesArr, function(i,j){
-            if(i != tile.col || j != tile.row){
-                validMinePositionsArr.push({c: i, r: j});
+            if(i != tile.col || j != tile.row){   //tile is different from where user clicked
+                candidatesArr.push({col: i, row: j});
             }
         });
+        return candidatesArr;
+    };
 
+    var selectMineCandidates = function(minesArr, candidatesArr, nbMines){
+        //Select n mine positions from available candidates and add them to minesArr
         for(var n = 0; n < nbMines; n++){
-            var rand = Math.floor(Math.random() * validMinePositionsArr.length);
-            var col = validMinePositionsArr[rand].c;
-            var row = validMinePositionsArr[rand].r;
-            minesArr[col][row] = true;
-            validMinePositionsArr[rand] = validMinePositionsArr[validMinePositionsArr.length-1];
-            validMinePositionsArr.pop();
+            var rand = Math.floor(Math.random() * candidatesArr.length);
+            var selected = candidatesArr[rand];
+        
+            candidatesArr[rand] = candidatesArr[candidatesArr.length-1]; //remove
+            candidatesArr.pop();
+        
+            minesArr[selected.col][selected.row] = true;
         }
     };
 
