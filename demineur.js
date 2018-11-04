@@ -228,8 +228,6 @@
         var colormap = [{r:255, g:255, b:255}, {r:238, g:0, b:0}];
         assert(exportDisplayImage(0,0,colormap,[]) == 
             "#000000#000000#000000\n#000000#000000#000000");
-        assert(exportDisplayImage(0,0,colormap,[[]]) == 
-            "#000000#000000#000000\n#000000#000000#000000");
         assert(exportDisplayImage(1,1,colormap,[[0]]) == 
             "#000000#000000#000000\n#000000#ffffff#000000");
         assert(exportDisplayImage(0,0,colormap,[[1,0],[0,1]]) == 
