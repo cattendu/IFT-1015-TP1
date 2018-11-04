@@ -211,12 +211,12 @@
         return revealedTiles;
     };
 
-    var testMinesweeper = function(){
+    var testMinesweeper = function(){ //Unit tests
         testDisplayImage();
         testSetMines();
     };
 
-    var testDisplayImage = function(){
+    var testDisplayImage = function(){  //Unit tests
         var exportDisplayImage = function(x,y,colormap,image){
             setScreenMode(3,2);
             displayImage(x,y,colormap,image);
@@ -242,7 +242,7 @@
             "#000000#000000#ee0000\n#000000#000000#ffffff");
     };
 
-    var testSetMines = function(){
+    var testSetMines = function(){  //Unit tests
         assert(setMines(2, 2, 3, 0, 0) ==
         'false,true,true,true');
         assert(setMines(2, 2, 3, 0, 16) ==
