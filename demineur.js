@@ -105,12 +105,14 @@ var waitForClick = function(){
     }
 };
 //------------------------------------------------------------------------------
-//Display an image at the (x,y) pixel coordinates
+//Display an image at the (x,y) pixel coordinates; clip image if out of bounds
 var displayImage = function(x, y, colormap, image){
     iterateOver(image, function(i,j){
-        var colorKey = image[i][j];      //key to rgb value
-        var color = colormap[colorKey];  //retrieve rgb from colormap
-        setPixel(x+j, y+i, color);
+        if(y+i < getScreenHeight() && x+j < getScreenWidth()){ //indexes are in bounds
+            var colorKey = image[i][j];      //key to rgb value
+            var color = colormap[colorKey];  //retrieve rgb from colormap
+            setPixel(x+j, y+i, color);
+        }
     });
 };
 //Displays all tiles containing a mine
@@ -198,7 +200,7 @@ var iterateOver = function(array2D, fn){
             fn(i,j); //call function on each element
 };
 //iterate over 8 tiles around (col,row) and call a function on each element
-var iterateAround = function(col, row, array2D, fn){     
+var iterateAround = function(col, row, array2D, fn){
     //make sure indexes are inside array's bounds
     var minCol = Math.max(col-1, 0);
     var minRow = Math.max(row-1, 0);
@@ -261,6 +263,8 @@ var testDisplayImage = function(){  //Unit tests
         "#000000#000000#000000\n#ee0000#ffffff#ee0000");
     assert(exportDisplayImage(0,0,colormap,[[1,0,0],[1,0,0]]) ==
         "#ee0000#ffffff#ffffff\n#ee0000#ffffff#ffffff");
+    assert(exportDisplayImage(1,0,colormap,[[1,0,0],[1,0,0]]) ==
+        "#000000#ee0000#ffffff\n#000000#ee0000#ffffff");
     assert(exportDisplayImage(2,0,colormap,[[1],[0]]) ==
         "#000000#000000#ee0000\n#000000#000000#ffffff");
 };
