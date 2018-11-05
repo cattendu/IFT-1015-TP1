@@ -4,7 +4,12 @@
         Wassime Seddiki, 20120146
         Charles Attendu, 1005236
     Date: 05-11-2018
-    Description: This program emulates the classic game of Minesweeper.
+    Description: This program is a simplified version of the classic game of
+    Minesweeper. When the player clicks on a tile, the tile changes to displays
+    the sum of adjacent mines. If the tile has no adjacent mines, all adjacent
+    tiles are also displayed. If the player clicks on a mine, the game ends and
+    the player lost. If the player clicked on every tile that's not mines, the
+    game end and the player wins. A player can never lose on his first click.
 *******************************************************************************/
 
 /*************************** VARIABLES TERMINOLOGY *****************************
@@ -23,8 +28,7 @@ var redMineImg = images[10];        //Image of a mine with red background
 var defaultImg = images[11];        //Image of unrevealed tile
 
 var minesweeper = function (cols, rows, nbMines) {
-    //2D bool array: tile at corresponding coords has been displayed
-    var tilesArr = generate2DArray(cols, rows);
+    var tilesArr, minesArr; //Initialized at runtime
     //Nb of tiles not yet displayed: game is won when remainingTiles == nbMines
     var remainingTiles = cols * rows;
     var gameState = 0; //-1: player lost; 0: game is running; 1: player won
@@ -39,6 +43,8 @@ var minesweeper = function (cols, rows, nbMines) {
         var tile = getTile(click.x, click.y); //tile player clicked on
         
         if(firstClick){ //Initialize only once
+            //2D bool array: tile at corresponding coords has been displayed
+            tilesArr = generate2DArray(cols, rows);
             //2D array containing mines positions
             minesArr = setMines(cols, rows, nbMines, tile.col, tile.row);
             firstClick = false;
@@ -54,8 +60,8 @@ var minesweeper = function (cols, rows, nbMines) {
             var nbAdjMines = getAdjMines(tile.col, tile.row, minesArr);
             
             //Set clicked tile as displayed and display corresponding image
-            tilesArr[tile.col][tile.row] = true;
             displayImage(tile.x, tile.y, colormap, images[nbAdjMines]);
+            tilesArr[tile.col][tile.row] = true;
             remainingTiles--;
             
             //display adjacent tiles if clicked tile has no adjacent mines
@@ -184,7 +190,7 @@ var setMineCandidates = function(minesArr, candidatesArr, nbMines){
         minesArr[c.col][c.row] = true; //set mine at position
     }
 };
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //iterate over all elems of a 2D array and call a function on each element
 var iterateOver = function(array2D, fn){
     for(var i = 0; i < array2D.length; i++)
@@ -205,7 +211,7 @@ var iterateAround = function(col, row, array2D, fn){
             if(!(i == col && j == row)) //evaluated tile != clicked tile
                 fn(i,j); //call function on each element
 }; 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 var getTile = function(x, y){
     return {
         col: getTileCol(x), //column's index
@@ -229,7 +235,7 @@ var getTileCol = function(x){
 var getTileRow = function(y){
     return Math.floor(y/imgHeight);
 };
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 var testMinesweeper = function(){ //Unit tests
     testDisplayImage();
     testSetMines();
@@ -243,19 +249,19 @@ var testDisplayImage = function(){  //Unit tests
     };
 
     var colormap = [{r:255, g:255, b:255}, {r:238, g:0, b:0}];
-    assert(exportDisplayImage(0,0,colormap,[]) == 
+    assert(exportDisplayImage(0,0,colormap,[]) ==
         "#000000#000000#000000\n#000000#000000#000000");
-    assert(exportDisplayImage(1,1,colormap,[[0]]) == 
+    assert(exportDisplayImage(1,1,colormap,[[0]]) ==
         "#000000#000000#000000\n#000000#ffffff#000000");
-    assert(exportDisplayImage(0,0,colormap,[[1,0],[0,1]]) == 
+    assert(exportDisplayImage(0,0,colormap,[[1,0],[0,1]]) ==
         "#ee0000#ffffff#000000\n#ffffff#ee0000#000000");
-    assert(exportDisplayImage(1,0,colormap,[[1,0],[0,1]]) == 
+    assert(exportDisplayImage(1,0,colormap,[[1,0],[0,1]]) ==
         "#000000#ee0000#ffffff\n#000000#ffffff#ee0000");
-    assert(exportDisplayImage(0,1,colormap,[[1,0,1]]) == 
+    assert(exportDisplayImage(0,1,colormap,[[1,0,1]]) ==
         "#000000#000000#000000\n#ee0000#ffffff#ee0000");
-    assert(exportDisplayImage(0,0,colormap,[[1,0,0],[1,0,0]]) == 
+    assert(exportDisplayImage(0,0,colormap,[[1,0,0],[1,0,0]]) ==
         "#ee0000#ffffff#ffffff\n#ee0000#ffffff#ffffff");
-    assert(exportDisplayImage(2,0,colormap,[[1],[0]]) == 
+    assert(exportDisplayImage(2,0,colormap,[[1],[0]]) ==
         "#000000#000000#ee0000\n#000000#000000#ffffff");
 };
 
@@ -271,16 +277,11 @@ var testSetMines = function(){  //Unit tests
         'true,true,false,true,true,true');
     assert(setMines(2, 3, 5, 1, 0) ==
         'true,true,true,false,true,true');
-    
-    //same clicks, same dimensions, different nbMines
-    var mines1 = setMines(2, 2, 2, 1, 1);
-    assert(mines1 == 'true,true,false,false' || 
-           mines1 == 'true,false,true,false' || 
-           mines1 == 'false,true,true,false');
-    var mines2 = setMines(2, 2, 1, 1, 1);
-    assert(mines2 == 'true,false,false,false' || 
-           mines2 == 'false,true,false,false' || 
-           mines2 == 'false,false,true,false');
+
+    var mines = setMines(2, 2, 2, 1, 1);
+    assert(mines == 'true,true,false,false' || 
+           mines == 'true,false,true,false' || 
+           mines == 'false,true,true,false');
 };
 
 //French functions equivalents
