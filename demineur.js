@@ -1,7 +1,7 @@
 /************************************ TP1 **************************************
     Class: IFT-1015
     Authors:
-        Wassim Seddiki, 
+        Wassime Seddiki, 20120146
         Charles Attendu, 1005236
     Date: 05-11-2018
     Description: This program emulates the classic game of Minesweeper.
