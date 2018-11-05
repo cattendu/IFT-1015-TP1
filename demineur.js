@@ -33,7 +33,7 @@ var minesweeper = function (cols, rows, nbMines) {
     var remainingTiles = cols * rows;
     var gameState = 0; //-1: player lost; 0: game is running; 1: player won
     var firstClick = true;
-    
+
     //init board
     setScreenMode(imgWidth*cols, imgHeight*rows);
     displayTiles(cols, rows);
@@ -41,7 +41,7 @@ var minesweeper = function (cols, rows, nbMines) {
     while (gameState == 0) {
         var click = waitForClick();
         var tile = getTile(click.x, click.y); //tile player clicked on
-        
+
         if(firstClick){ //Initialize only once
             //2D bool array: tile at corresponding coords has been displayed
             tilesArr = generate2DArray(cols, rows);
@@ -58,12 +58,12 @@ var minesweeper = function (cols, rows, nbMines) {
         else if(!tilesArr[tile.col][tile.row]){ //tile is not yet displayed
             //Check how many mines are adjacent to the clicked tile
             var nbAdjMines = getAdjMines(tile.col, tile.row, minesArr);
-            
+
             //Set clicked tile as displayed and display corresponding image
             displayImage(tile.x, tile.y, colormap, images[nbAdjMines]);
             tilesArr[tile.col][tile.row] = true;
             remainingTiles--;
-            
+
             //display adjacent tiles if clicked tile has no adjacent mines
             if(nbAdjMines == 0){
                 remainingTiles -= 
@@ -108,7 +108,8 @@ var waitForClick = function(){
 //Display an image at the (x,y) pixel coordinates; clip image if out of bounds
 var displayImage = function(x, y, colormap, image){
     iterateOver(image, function(i,j){
-        if(y+i < getScreenHeight() && x+j < getScreenWidth()){ //indexes are in bounds
+        //indexes are in screen bounds
+        if(x+j < getScreenWidth() && y+i < getScreenHeight()){
             var colorKey = image[i][j];      //key to rgb value
             var color = colormap[colorKey];  //retrieve rgb from colormap
             setPixel(x+j, y+i, color);
@@ -121,7 +122,7 @@ var displayMines = function(minesArr){
         if(minesArr[i][j])
             displayImage(i*imgWidth, j*imgHeight, colormap, mineImg);
     });
-};  
+};
 //Displays all tiles as unrevealed tiles
 var displayTiles = function (cols, rows){
     for(var i = 0; i < cols; i++)
@@ -206,7 +207,7 @@ var iterateAround = function(col, row, array2D, fn){
     var minRow = Math.max(row-1, 0);
     var maxCol = Math.min(col+1, array2D.length-1);   
     var maxRow = Math.min(row+1, array2D[0].length-1);
-    
+
     //iterate around a tile
     for(var i = minCol; i <= maxCol; i++ )
         for(var j = minRow; j <= maxRow; j++)
@@ -270,21 +271,17 @@ var testDisplayImage = function(){  //Unit tests
 };
 
 var testSetMines = function(){  //Unit tests
-    //same dimensions, different clicks
     assert(setMines(2, 2, 3, 0, 0) ==
     'false,true,true,true');
     assert(setMines(2, 2, 3, 0, 1) ==
     'true,false,true,true');
-    
-    //same clicks, different dimensions
     assert(setMines(3, 2, 5, 1, 0) ==
         'true,true,false,true,true,true');
     assert(setMines(2, 3, 5, 1, 0) ==
         'true,true,true,false,true,true');
-
     var mines = setMines(2, 2, 2, 1, 1);
-    assert(mines == 'true,true,false,false' || 
-           mines == 'true,false,true,false' || 
+    assert(mines == 'true,true,false,false' ||
+           mines == 'true,false,true,false' ||
            mines == 'false,true,true,false');
 };
 
