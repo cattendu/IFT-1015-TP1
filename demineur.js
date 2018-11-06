@@ -98,14 +98,16 @@ var waitForClick = function(){
     return { x: mouse.x, y: mouse.y };
 };
 //------------------------------------------------------------------------------
-//Display an image at the (x,y) pixel coordinates; clip image if out of bounds
-var displayImage = function(x, y, colormap, image){
+//Display an img where the top left pixel of the img is at the (x,y) coordinates
+var displayImage = function(imgX, imgY, colormap, image){
     iterateOver(image, function(i,j){
-        //indexes are in screen bounds
-        if(x+j < getScreenWidth() && y+i < getScreenHeight()){
+        var x = imgX + j; //pixel x coordinate
+        var y = imgY + i; //pixel y coordinate
+        //pixel is within screen bounds; clip img otherwise
+        if(x < getScreenWidth() && y < getScreenHeight()){
             var colorKey = image[i][j];      //key to rgb value
             var color = colormap[colorKey];  //retrieve rgb from colormap
-            setPixel(x+j, y+i, color);
+            setPixel(x, y, color);
         }
     });
 };
