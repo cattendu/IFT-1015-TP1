@@ -92,17 +92,10 @@ var minesweeper = function (cols, rows, nbMines) {
 //------------------------------------------------------------------------------
 //Detects player's mouse click
 var waitForClick = function(){
-    var mouse = getMouse();    //cursor's (x,y) and button state (up/down)
-    var previousMouse = mouse; //record from the previous iteration
-    
-    while (true){ //run while player hasn't clicked
-        mouse = getMouse();
-        if (!previousMouse.down && mouse.down){ //state changed from up to down
-            return { x: mouse.x, y: mouse.y };
-        }
-        previousMouse = mouse;
-        pause(0.01); //pause to lighten load on CPU
-    }
+    while(getMouse().down) pause(0.01);  //Wait for mouse up
+    while(!getMouse().down) pause(0.01); //Wait for mouse down
+    var mouse = getMouse();
+    return { x: mouse.x, y: mouse.y };
 };
 //------------------------------------------------------------------------------
 //Display an image at the (x,y) pixel coordinates; clip image if out of bounds
@@ -127,7 +120,7 @@ var displayMines = function(minesArr){
 var displayTiles = function (cols, rows){
     for(var i = 0; i < cols; i++)
         for(var j = 0; j < rows; j++)
-            displayImage(j*imgWidth, i*imgHeight, colormap, defaultImg);
+            displayImage(i*imgWidth, j*imgHeight, colormap, defaultImg);
 };
 //Display each tile adjacent to a specified tile
 var displayAdjTiles = function(col, row, minesArr, tilesArr){
